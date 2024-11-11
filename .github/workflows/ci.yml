@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [dev]
+    paths-ignore: ['**.md', 'LICENSE', '.python-version']
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rye
+        run: |
+          curl -sSf https://rye.astral.sh/get | bash
+          echo "$HOME/.rye/shims" >> $GITHUB_PATH
+        env:
+          RYE_VERSION: '0.35.0'
+          RYE_INSTALL_OPTION: '--yes'
+
+      - name: Install dependencies
+        run: rye sync --all-features
+
+      - name: Run linters
+        run: rye run lint
+
+      - name: Ensure importability
+        run: rye run demo
+
+      - name: Run tests in Python 3.11
+        run: rye run pytest
+
+      - name: Build local distribution
+        run: rye build --clean
+
+      - name: Persist build as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*.whl
+
+  ecosystem-test:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Download build from artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+
+      - name: Install package
+        run: pip install namefully-*.whl
+
+      - name: Ensure importability
+        run: python examples/main.py
+
+      - name: Run tests
+        run: |
+          pip install pytest uvicorn anyio
+          pytest test/ -v

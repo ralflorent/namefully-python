@@ -1,0 +1,93 @@
+[project]
+name = "namefully"
+version = "1.0.0-alpha.1"
+description = "A Python utility for handling person names in a particular order, way, or shape."
+license = "MIT"
+authors = [{ name = "Ralph Florent", email = "ralflornt@gmail.com" }]
+keywords = ["name", "format"]
+readme = "README.md"
+requires-python = ">= 3.7"
+classifiers = [
+  "Typing :: Typed",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent",
+  "Operating System :: POSIX",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: Microsoft :: Windows",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "License :: OSI Approved :: MIT License"
+]
+
+[project.urls]
+Repository = "https://github.com/ralflorent/namefully-python"
+Homepage = "https://github.com/ralflorent/namefully-python/blob/main/README.md"
+Changelog = "https://github.com/ralflorent/namefully-python/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+  "pytest>=8.1.2",
+  "ruff>=0.4.2",
+  "pyright>=1.1.363"
+]
+
+[tool.rye.scripts]
+format = { chain = ["ruff format", "ruff check --fix ."] }
+lint = { chain = ["format", "pyright"] }
+demo = "python examples/main.py"
+
+[tool.ruff]
+line-length = 120
+output-format = "grouped"
+target-version = "py37"
+
+[tool.ruff.lint]
+select = [
+  "I",    # isort
+  "B",    # bugbear rules
+  "F401", # remove unused imports
+  "E722", # bare except statements
+  "ARG",  # unused arguments
+  "T201", # print statements
+  "T203", # p-print statements
+  "TCH004", # misuse of typing.TYPE_CHECKING
+  "TID251", # import rules
+]
+unfixable = ["T201", "T203"] # disable auto fix for print statements
+
+[tool.ruff.lint.per-file-ignores]
+"test/**.py" = ["T201", "T203"]
+"examples/**.py" = ["T201", "T203"]
+
+[tool.ruff.format]
+quote-style = "single"
+docstring-code-format = true
+
+[tool.pyright]
+include = ["namefully", "test", "examples"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build]
+include = ["namefully/*"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["namefully"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+addopts = "--tb=short"
+xfail_strict = true
+filterwarnings = ["error"]
