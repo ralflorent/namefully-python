@@ -1,3 +1,4 @@
+from ._config import *
 from ._constants import *
 from ._errors import *
 from ._name import *

@@ -1,19 +1,16 @@
 from typing import List, Optional
 
 from ._errors import NameError
+from ._types import _CapsRange, _Namon, _Surname
 from ._utils import capitalize, decapitalize
 
 __all__ = ['Name', 'FirstName', 'LastName']
 
 
 class Name:
-    _namon: str
-    _initial: str
-    _caps_range: Optional[str] = None  # 'all' | 'initial',
-
     def __init__(self, value: str, *, type: str, caps_range: Optional[str] = None):
-        self._caps_range = caps_range in ['all', 'initial'] and caps_range or 'initial'
-        self._type = type
+        self._caps_range = caps_range in _CapsRange and caps_range or 'initial'
+        self._type = type in _Namon and type or 'first_name'
         self.value = value
         if caps_range is not None:
             self.caps(caps_range)
@@ -87,6 +84,10 @@ class Name:
         self.value = decapitalize(self._namon, caps_range or self._caps_range)
         return self
 
+    def _validate(self, name: str):
+        if len(name.strip()) < 2:
+            raise NameError.input(source=name, message='must be 2+ characters')
+
     def __str__(self) -> str:
         return self._namon
 
@@ -96,18 +97,14 @@ class Name:
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Name) and self.value == other.value and self.type == other.type
 
-    def _validate(self, name: str):
-        if len(name.strip()) < 2:
-            raise NameError.input(source=name, message='must be 2+ characters')
-
 
 class FirstName(Name):
     def __init__(self, value: str, *more: str):
         super().__init__(value, type='first_name')
         self._more: List[Name] = []
-        for value in more:
-            self._validate(value)
-            self._more.append(Name.first(value))
+        for name in more:
+            self._validate(name)
+            self._more.append(Name.first(name))
 
     @property
     def has_more(self) -> bool:
@@ -140,14 +137,14 @@ class FirstName(Name):
         caps_range = caps_range or self._caps_range
         self.value = capitalize(self.value, caps_range)
         if self.has_more:
-            self._more = [n.caps(caps_range) for n in self._more]
+            self._more = [name.caps(caps_range) for name in self._more]
         return self
 
     def decaps(self, caps_range: Optional[str] = None) -> 'FirstName':
         caps_range = caps_range or self._caps_range
         self.value = decapitalize(self.value, caps_range)
         if self.has_more:
-            self._more = [n.decaps(caps_range) for n in self._more]
+            self._more = [name.decaps(caps_range) for name in self._more]
         return self
 
     def copy_with(self, *, first: Optional[str] = None, more: Optional[List[str]] = None) -> 'FirstName':
@@ -162,7 +159,7 @@ class LastName(Name):
         if mother:
             self._validate(mother)
             self._mother = Name.last(mother)
-        self.format = format in ['father', 'mother', 'hyphenated', 'all'] and format or 'father'
+        self.format = format in _Surname and format or 'father'
 
     @property
     def father(self) -> str:
@@ -188,7 +185,8 @@ class LastName(Name):
         return names
 
     def to_str(self, format: Optional[str] = None) -> str:
-        format, mother = format or self.format, self._mother and self._mother.value or ''
+        format = format in _Surname and format or self.format
+        mother = self._mother and self._mother.value or ''
 
         if format == 'father':
             return self.value
