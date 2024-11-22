@@ -3,7 +3,7 @@ from typing import Optional
 from ._constants import *
 from ._types import _CapsRange
 
-__all__ = ['NameIndex', 'capitalize', 'decapitalize', 'toggle_case']
+__all__ = ['NameIndex']
 
 
 class NameIndex:

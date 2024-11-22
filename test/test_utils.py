@@ -1,5 +1,5 @@
 from namefully._types import Separator
-from namefully._utils import *
+from namefully._utils import NameIndex, capitalize, decapitalize, toggle_case
 
 FIRST_NAME, LAST_NAME = 'first_name', 'last_name'
 

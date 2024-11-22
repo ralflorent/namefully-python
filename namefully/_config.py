@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 
-from ._types import _NameOrder, _Separator, _Surname, _Title
+from ._types import Separator, _NameOrder, _Surname, _Title
 
 
 class Config:
@@ -14,7 +14,7 @@ class Config:
         name: str,
         *,
         ordered_by: str = 'first_name',
-        separator: str = 'space',
+        separator: str = ' ',
         title: str = 'uk',
         ending: bool = False,
         bypass: bool = True,
@@ -22,7 +22,7 @@ class Config:
     ) -> None:
         self._name: str = name
         self._ordered_by: str = ordered_by in _NameOrder and ordered_by or 'first_name'
-        self._separator: str = separator in _Separator and separator or 'space'
+        self._separator: str = separator in Separator.tokens() and separator or ' '
         self._title: str = title in _Title and title or 'uk'
         self._ending: bool = ending
         self._bypass: bool = bypass
@@ -111,7 +111,7 @@ class Config:
 
     def reset(self) -> None:
         self._ordered_by = 'first_name'
-        self._separator = 'space'
+        self._separator = ' '
         self._title = 'uk'
         self._ending = False
         self._bypass = True

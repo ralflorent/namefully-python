@@ -3,18 +3,6 @@ _CapsRange = ['initial', 'all']
 _NameOrder = ['first_name', 'last_name']
 _Surname = ['father', 'mother', 'hyphenated', 'all']
 _Namon = ['prefix', 'first_name', 'middle_name', 'last_name', 'suffix']
-_Separator = [
-    'comma',
-    'colon',
-    'double_quote',
-    'empty',
-    'hyphen',
-    'period',
-    'semi_colon',
-    'single_quote',
-    'space',
-    'underscore',
-]
 
 
 class Separator:

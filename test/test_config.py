@@ -5,7 +5,7 @@ def test_creates_default_configuration():
     config = Config.create()
     assert config.name == 'default'
     assert config.ordered_by == 'first_name'
-    assert config.separator == 'space'
+    assert config.separator == ' '
     assert config.title == 'uk'
     assert config.bypass is True
     assert config.ending is False
@@ -29,7 +29,7 @@ def test_can_create_more_than_one_configuration():
 
     assert default.name == 'default_config'
     assert default.ordered_by == 'first_name'
-    assert default.separator == 'space'
+    assert default.separator == ' '
     assert default.title == 'uk'
     assert default.bypass is True
     assert default.ending is False
@@ -37,7 +37,7 @@ def test_can_create_more_than_one_configuration():
 
     assert other.name == 'other_config'
     assert other.ordered_by == 'last_name'
-    assert other.separator == 'space'
+    assert other.separator == ' '
     assert other.title == 'uk'
     assert other.bypass is False
     assert other.ending is False
@@ -51,7 +51,7 @@ def test_can_create_copy_from_existing_configuration():
 
     assert copy.name == 'config_copy'
     assert copy.ordered_by == 'last_name'
-    assert copy.separator == 'space'
+    assert copy.separator == ' '
     assert copy.title == 'uk'
     assert copy.bypass is False
     assert copy.ending is False
@@ -59,7 +59,7 @@ def test_can_create_copy_from_existing_configuration():
 
     assert cloned.name == 'config_copy_copy'
     assert cloned.ordered_by == 'last_name'
-    assert cloned.separator == 'space'
+    assert cloned.separator == ' '
     assert cloned.title == 'uk'
     assert cloned.bypass is False
     assert cloned.ending is False
@@ -67,7 +67,7 @@ def test_can_create_copy_from_existing_configuration():
 
     assert config.name == 'config'
     assert config.ordered_by == 'first_name'
-    assert config.separator == 'space'
+    assert config.separator == ' '
     assert config.title == 'uk'
     assert config.bypass is True
     assert config.ending is False
@@ -76,7 +76,7 @@ def test_can_create_copy_from_existing_configuration():
     copy.reset()
     assert copy.name == 'config_copy'
     assert copy.ordered_by == 'first_name'
-    assert copy.separator == 'space'
+    assert copy.separator == ' '
     assert copy.title == 'uk'
     assert copy.bypass is True
     assert copy.ending is False
