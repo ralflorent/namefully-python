@@ -1,6 +1,6 @@
 import pytest
 
-from namefully import Config, FirstName, LastName, Name, NameError, Namefully
+from namefully import FirstName, LastName, Name, NameError, Namefully
 
 from ._helpers import HashParser, find_name_case
 
@@ -87,6 +87,18 @@ def test_generic_name_format(generic_name):
     assert generic_name.format('$F.$M.$L') == 'J.B.S'
     assert generic_name.format('$p') == ''
     assert Namefully('John Smith').format('o') == 'SMITH, John'
+
+
+def test_name_created_from_partial():
+    assert Namefully.only('John', 'Smith').full == 'John Smith'
+    assert Namefully.only(prefix='Mr', first='John', last='Smith', title='us').full == 'Mr. John Smith'
+
+
+def test_generic_name_to_iterable(generic_name):
+    names = generic_name.parts
+    assert len(names) == 5
+    for n in names:
+        assert isinstance(n, Name)
 
 
 def test_generic_name_case_conversion(generic_name):
@@ -306,92 +318,3 @@ def test_can_be_built_with_name():
         Namefully('Mr John Joe Sm1th', bypass=False)
     with pytest.raises(NameError):
         Namefully('Mr John Joe Smith Ph+', bypass=False)
-
-
-
-def test_config_creates_default_configuration():
-    config = Config.create()
-    assert config.name == 'default'
-    assert config.ordered_by == 'first_name'
-    assert config.separator == ' '
-    assert config.title == 'uk'
-    assert config.bypass is True
-    assert config.ending is False
-    assert config.surname == 'father'
-
-
-def test_config_merges_with_partial_options():
-    config = Config.merge(
-        ordered_by='first_name',
-        separator=':',
-        title='us',
-        surname='hyphenated',
-        ending=True,
-    )
-    assert config.name == 'default'
-    assert config.ordered_by == 'first_name'
-    assert config.separator == ':'
-    assert config.title == 'us'
-    assert config.bypass is True
-    assert config.ending is True
-    assert config.surname == 'hyphenated'
-
-
-def test_config_can_create_multiple_configurations():
-    default = Config.create('defaultConfig')
-    other = Config.merge(name='otherConfig', ordered_by='last_name', surname='mother', bypass=False)
-
-    assert default.name == 'defaultConfig'
-    assert default.ordered_by == 'first_name'
-    assert default.separator == ' '
-    assert default.title == 'uk'
-    assert default.bypass is True
-    assert default.ending is False
-    assert default.surname == 'father'
-
-    assert other.name == 'otherConfig'
-    assert other.ordered_by == 'last_name'
-    assert other.separator == ' '
-    assert other.title == 'uk'
-    assert other.bypass is False
-    assert other.ending is False
-    assert other.surname == 'mother'
-
-
-def test_config_can_create_copy_from_existing_configuration():
-    config = Config.create('config')
-    copy = config.copy_with(name='config_copy', ordered_by='last_name', surname='mother', bypass=False)
-    clone = copy.clone()
-
-    assert config.name == 'config'
-    assert config.ordered_by == 'first_name'
-    assert config.separator == ' '
-    assert config.title == 'uk'
-    assert config.bypass is True
-    assert config.ending is False
-    assert config.surname == 'father'
-
-    assert copy.name == 'config_copy'
-    assert copy.ordered_by == 'last_name'
-    assert copy.separator == ' '
-    assert copy.title == 'uk'
-    assert copy.bypass is False
-    assert copy.ending is False
-    assert copy.surname == 'mother'
-
-    assert clone.name == 'config_copy_copy'
-    assert clone.ordered_by == 'last_name'
-    assert clone.separator == ' '
-    assert clone.title == 'uk'
-    assert clone.bypass is False
-    assert clone.ending is False
-    assert clone.surname == 'mother'
-
-    copy.reset()
-    assert copy.name == 'config_copy'
-    assert copy.ordered_by == 'first_name'
-    assert copy.separator == ' '
-    assert copy.title == 'uk'
-    assert copy.bypass is True
-    assert copy.ending is False
-    assert copy.surname == 'father'

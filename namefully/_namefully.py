@@ -5,7 +5,7 @@ from ._config import Config
 from ._constants import ALLOWED_TOKENS
 from ._errors import NameError
 from ._full_name import FullName
-from ._name import Name
+from ._name import FirstName, LastName, Name
 from ._parser import NamaParser, Parser, SequentialNameParser, SequentialStringParser, StringParser
 from ._utils import decapitalize, toggle_case
 
@@ -91,12 +91,12 @@ class Namefully:
 
     @staticmethod
     def only(
-        first_name: str,
-        last_name: str,
+        first: Union[str, FirstName],
+        last: Union[str, LastName],
         *,
-        prefix: Optional[str] = None,
-        suffix: Optional[str] = None,
-        middle_name: Optional[Sequence[str]] = None,
+        prefix: Union[None, str, Name] = None,
+        suffix: Union[None, str, Name] = None,
+        middles: Union[None, Sequence[str], Sequence[Name]] = None,
         context: Optional[str] = None,
         ordered_by: Optional[str] = None,
         separator: Optional[str] = None,
@@ -115,9 +115,9 @@ class Namefully:
             surname=surname,
         )
         full_name.prefix = prefix
-        full_name.first_name = first_name
-        full_name.middle_name = middle_name or []
-        full_name.last_name = last_name
+        full_name.first_name = first
+        full_name.middle_name = middles or []
+        full_name.last_name = last
         full_name.suffix = suffix
         return Namefully(full_name)
 
@@ -249,7 +249,7 @@ class Namefully:
     def initials(self, ordered_by: Optional[str] = None, only: Optional[str] = None) -> List[str]:
         initials = []
         first_inits = self._full_name.first_name.initials()
-        mid_inits = [n._initial for n in self._full_name.middle_name]
+        mid_inits = [n.initial for n in self._full_name.middle_name]
         last_inits = self._full_name.last_name.initials()
 
         ordered_by = ordered_by or self.config.ordered_by
@@ -295,7 +295,7 @@ class Namefully:
         has_mid = self.has_middle
         f = sep.join(self._full_name.first_name.initials(with_more)) + sep
         l = sep.join(self._full_name.last_name.initials(surname)) + sep
-        m = sep.join(n._initial for n in self._full_name.middle_name) + sep if has_mid else ''
+        m = sep.join(n.initial for n in self._full_name.middle_name) + sep if has_mid else ''
         name = []
 
         if self.config.ordered_by == 'first_name':
@@ -524,9 +524,9 @@ class Namefully:
         elif char == 'S':
             return self.suffix.upper() if self.suffix else None
         elif char in ['$f', '$F']:
-            return self._full_name.first_name._initial
+            return self._full_name.first_name.initial
         elif char in ['$l', '$L']:
-            return self._full_name.last_name._initial
+            return self._full_name.last_name.initial
         elif char in ['$m', '$M']:
             return self.middle[0] if self.middle else None
         else:

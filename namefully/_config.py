@@ -28,6 +28,9 @@ class Config:
         self._bypass: bool = bypass
         self._surname: str = surname in _Surname and surname or 'father'
 
+    def __repr__(self) -> str:
+        return f'<Config: {self._name}>'
+
     @property
     def ordered_by(self) -> str:
         return self._ordered_by
@@ -101,7 +104,7 @@ class Config:
         surname: Optional[str] = None,
     ) -> 'Config':
         name = name or self._name + '_copy'
-        config = Config.create(self._gen_new_name(name))
+        config = Config.create(self._gen_name(name))
         config._ordered_by = ordered_by if ordered_by is not None else self._ordered_by
         config._separator = separator if separator is not None else self._separator
         config._title = title if title is not None else self._title
@@ -127,8 +130,19 @@ class Config:
             self._assert_cache()
             Config._cache[self._name]._ordered_by = order
 
-    def _gen_new_name(self, name: str) -> str:
-        return name if name != self._name and name not in Config._cache else self._gen_new_name(f'{name}_copy')
+    def to_dict(self):
+        return {
+            'name': self._name,
+            'ordered_by': self._ordered_by,
+            'separator': self._separator,
+            'title': self._title,
+            'ending': self._ending,
+            'bypass': self._bypass,
+            'surname': self._surname,
+        }
+
+    def _gen_name(self, name: str) -> str:
+        return name if name != self._name and name not in Config._cache else self._gen_name(f'{name}_copy')
 
     def _assert_cache(self) -> None:
         if self._name not in Config._cache:
