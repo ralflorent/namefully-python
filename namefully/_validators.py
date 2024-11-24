@@ -83,7 +83,7 @@ class NamonValidator(Validator):
             NameValidator().validate(value, type)
         else:
             if not ValidationRule.namon.match(value):
-                raise ValidationError(source=value, name_type='namon', message='invalid content')
+                raise ValidationError(source=value, name_type=type or 'namon', message='invalid content')
 
 
 class FirstNameValidator(Validator):

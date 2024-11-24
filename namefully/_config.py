@@ -85,6 +85,10 @@ class Config:
         config._surname = surname if surname is not None else config.surname
         return config
 
+    @classmethod
+    def clear(cls) -> None:
+        cls._cache.clear()
+
     def copy_with(
         self,
         *,
@@ -120,7 +124,12 @@ class Config:
 
     def update_order(self, order: str) -> None:
         if order and order != self._ordered_by:
+            self._assert_cache()
             Config._cache[self._name]._ordered_by = order
 
     def _gen_new_name(self, name: str) -> str:
         return name if name != self._name and name not in Config._cache else self._gen_new_name(f'{name}_copy')
+
+    def _assert_cache(self) -> None:
+        if self._name not in Config._cache:
+            Config._cache[self._name] = self

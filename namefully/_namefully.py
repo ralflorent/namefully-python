@@ -209,6 +209,9 @@ class Namefully:
             'suffix': self.suffix,
         }
 
+    def to_str(self) -> str:
+        return self.full
+
     def has(self, namon: str) -> bool:
         return self._full_name.has(namon)
 
@@ -234,7 +237,7 @@ class Namefully:
         else:
             return ' '.join([self.last, self.first, *self.middle_name()])
 
-    def first_name(self, with_more: bool = False) -> str:
+    def first_name(self, with_more: bool = True) -> str:
         return self._full_name.first_name.to_str(with_more=with_more)
 
     def middle_name(self) -> List[str]:

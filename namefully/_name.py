@@ -16,6 +16,10 @@ class Name:
             self.caps(caps_range)
 
     @property
+    def initial(self) -> str:
+        return self._initial
+
+    @property
     def value(self) -> str:
         return self._namon
 
@@ -73,6 +77,9 @@ class Name:
     def suffix(value: str, caps_range: Optional[str] = None) -> 'Name':
         return Name(value, type='suffix', caps_range=caps_range)
 
+    def to_str(self) -> str:
+        return self._namon
+
     def initials(self) -> List[str]:
         return [self._initial]
 
@@ -89,7 +96,7 @@ class Name:
             raise NameError.input(source=name, message='must be 2+ characters')
 
     def __str__(self) -> str:
-        return self._namon
+        return self.to_str()
 
     def __repr__(self) -> str:
         return f'<{self._type}: {self._namon}>'
@@ -152,10 +159,9 @@ class FirstName(Name):
 
 
 class LastName(Name):
-    _mother: Optional[Name] = None
-
     def __init__(self, father: str, mother: Optional[str] = None, format: str = 'father'):
         super().__init__(father, type='last_name')
+        self._mother: Optional[Name] = None
         if mother:
             self._validate(mother)
             self._mother = Name.last(mother)

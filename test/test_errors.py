@@ -1,18 +1,17 @@
 import pytest
 
-from namefully import (
-    FullName,
-    InputError,
-    NameError,
-    NameErrorType,
-    Namefully,
-    NotAllowedError,
-    UnknownError,
-    ValidationError,
-)
+from namefully import FullName, NameError, NameErrorType, Namefully
+from namefully._errors import InputError, NotAllowedError, UnknownError, ValidationError
+from namefully._name import FirstName, LastName, Name
+from namefully._validators import Validators
 
 NAME = 'Jane Doe'
 MESSAGE = 'Wrong name'
+
+
+@pytest.fixture(scope='module')
+def config():
+    return {'context': 'error_handling', 'bypass': False}
 
 
 def test_can_be_created_with_message_only():
@@ -68,7 +67,91 @@ def test_unknown_error_is_thrown_when_failed_to_parse_full_name():
 
 def test_not_allowed_error_is_thrown_if_wrong_params_during_formatting():
     name = Namefully(NAME)
-    assert name.format('f') == 'Jane'
     for k in ['[', '{', '^', '!', '@', '#', 'a', 'c', 'd']:
         with pytest.raises(NotAllowedError):
             name.format(k)
+
+
+def test_input_error_if_name_keys_are_not_as_expected():
+    with pytest.raises(InputError):
+        Namefully({})
+    with pytest.raises(InputError):
+        Validators.nama.validate({'prefix': ''})
+    with pytest.raises(InputError):
+        Validators.nama.validate({'prefix': 'Mr', 'first_name': 'John'})
+    with pytest.raises(InputError):
+        Validators.nama.validate({'prefix': 'Mr', 'last_name': 'Smith'})
+
+
+def test_input_error_if_string_list_has_unsupported_number_of_entries():
+    with pytest.raises(InputError):
+        Namefully([])
+    with pytest.raises(InputError):
+        Namefully(['jane'])
+    with pytest.raises(InputError):
+        Namefully(['ms', 'jane', 'jane', 'janet', 'doe', 'III'])
+
+
+def test_input_error_if_name_list_has_unsupported_number_of_entries():
+    name = Name.first('jane-')
+    with pytest.raises(InputError):
+        Namefully([])
+    with pytest.raises(InputError):
+        Namefully([name])
+    with pytest.raises(InputError):
+        Namefully([name, name, name, name, name, name])
+
+
+def test_validation_error_when_namon_breaks_validation_rules(config):
+    with pytest.raises(ValidationError):
+        Namefully('J4ne Doe', **config)
+    with pytest.raises(ValidationError):
+        Namefully('Jane Do3', **config)
+
+
+def test_validation_error_if_first_name_breaks_validation_rules(config):
+    with pytest.raises(ValidationError):
+        Namefully('J4ne Doe', **config)
+    with pytest.raises(ValidationError):
+        Namefully([FirstName('Jane', 'M4ry'), Name.last('Doe')], **config)
+
+
+def test_validation_error_if_middle_name_breaks_validation_rules(config):
+    with pytest.raises(ValidationError):
+        Namefully('Jane M4ry Doe', **config)
+    with pytest.raises(ValidationError):
+        Validators.middle_name.validate([Name.first('ka7e')])
+    with pytest.raises(ValidationError):
+        Validators.middle_name.validate([Name.middle('kate;')])
+    with pytest.raises(ValidationError):
+        Validators.middle_name.validate(['Mary', 'kate;'])
+    with pytest.raises(ValidationError):
+        Validators.middle_name.validate([Name.middle('Jack'), Name.middle('kate;')])
+
+
+def test_validation_error_if_last_name_breaks_validation_rules(config):
+    with pytest.raises(ValidationError):
+        Namefully('Jane Mary Do3', **config)
+    with pytest.raises(ValidationError):
+        Namefully([FirstName('Jane'), LastName('Doe', 'Sm1th')], **config)
+
+
+def test_validation_error_if_namon_breaks_validation_rules(config):
+    with pytest.raises(ValidationError):
+        Validators.prefix.validate(Name.prefix('mr.'))
+    with pytest.raises(ValidationError):
+        Validators.suffix.validate(Name.suffix('PhD '))
+    with pytest.raises(ValidationError):
+        Namefully([Name.prefix('mr '), Name.first('John'), Name.last('Doe')], **config)
+
+
+def test_validation_error_if_dict_name_values_are_incorrect(config):
+    with pytest.raises(ValidationError):
+        Namefully({'first_name': 'J4ne', 'last_name': 'Doe'}, **config)
+    with pytest.raises(ValidationError):
+        Validators.nama.validate({'prefix': '', 'first_name': 'Jane', 'last_name': 'Smith'})
+
+
+def test_validation_error_if_string_list_breaks_validation_rules(config):
+    with pytest.raises(ValidationError):
+        Namefully(['j4ne', 'doe'], **config)

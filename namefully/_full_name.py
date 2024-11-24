@@ -26,15 +26,14 @@ class FullName:
     behaviors related to that name handling.
     """
 
-    _prefix: Optional[Name] = None
     _first_name: FirstName
-    _middle_name: List[Name] = []
     _last_name: LastName
-    _suffix: Optional[Name] = None
-    _config: Config
 
     def __init__(self, **options: Any):
         self._config = Config.merge(**options)
+        self._prefix: Optional[Name] = None
+        self._middle_name: List[Name] = []
+        self._suffix: Optional[Name] = None
 
     @property
     def prefix(self) -> Optional[Name]:
@@ -72,7 +71,7 @@ class FullName:
         if not self._config.bypass:
             Validators.prefix.validate(name)
         prefix = name.value if isinstance(name, Name) else name
-        self._prefix = Name.prefix(f'{prefix}.' if self._config.title == 'uk' else prefix)
+        self._prefix = Name.prefix(f'{prefix}.' if self._config.title == 'us' else prefix)
 
     @first_name.setter
     def first_name(self, name: Union[str, FirstName]):
@@ -130,20 +129,20 @@ class FullName:
         return tuple(names)
 
     @staticmethod
-    def parse(name: Mapping[str, str], **options: Any) -> 'FullName':
+    def parse(names: Mapping[str, str], **options: Any) -> 'FullName':
         try:
             full_name = FullName(**options)
-            full_name.prefix = name.get('prefix')
-            full_name.first_name = name['first_name']
-            full_name.middle_name = name.get('middle_name', [])
-            full_name.last_name = name['last_name']
-            full_name.suffix = name.get('suffix')
+            full_name.prefix = names.get('prefix')
+            full_name.first_name = names['first_name']
+            full_name.middle_name = names.get('middle_name', [])
+            full_name.last_name = names['last_name']
+            full_name.suffix = names.get('suffix')
             return full_name
         except NameError as error:
             raise error
         except Exception as exc:
             raise NameError.unknown(
-                source=list(name.values()),
+                source=list(names.values()),
                 message='could not parse Mapping[str, str] content',
                 error=exc,
             ) from exc
