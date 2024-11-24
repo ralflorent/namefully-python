@@ -1,6 +1,6 @@
 [project]
 name = "namefully"
-version = "1.0.0-alpha.1"
+version = "1.0.0"
 description = "A Python utility for handling person names in a particular order, way, or shape."
 license = "MIT"
 authors = [{ name = "Ralph Florent", email = "ralflornt@gmail.com" }]

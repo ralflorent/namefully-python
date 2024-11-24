@@ -69,3 +69,10 @@ To run an example, you will need to follow the instructions in the
 ```bash
 yarn demo
 ```
+
+> **Disclaimer:** This project has been carefully ported from this Node.js [library][namefully-js].
+> In fact, 90% of that portability was done with the help of GitHub Copilot + ChatGPT 4o.
+> This library is also available in [Dart & Flutter][namefully-dart].
+
+[namefully-js]: https://github.com/ralflorent/namefully
+[namefully-dart]: https://github.com/ralflorent/namefully-dart
