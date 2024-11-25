@@ -34,8 +34,7 @@ pip install namefully
 
 > **NOTE**: if you intend to use this utility for non-standard name cases such as
 > many middle names or last names, some extra work is required. For example,
-> using `Namefully.parse()` lets you parse names containing many middle names
-> with the risk of throwing a `NameError` when the parsing is not possible.
+> using `Namefully.parse()` lets you parse names containing many middle names.
 
 See [examples] or [test cases] for more details.
 
@@ -75,10 +74,10 @@ or string array values.
 
 ### separator
 
-`'' | , | : | " | - | . | ; | ' | ' ' | _]` - default: `' '` (white space)
+`'' | , | : | " | - | . | ; | ' | ' ' | _` - default: `' '` (whitespace)
 
 Supported separators are: empty, comma, colon, double quotes, hyphen, period,
-semicolon, single quote, white space, and underscore.
+semicolon, single quote, whitespace, and underscore.
 Though _only valid for raw string values_, `separator` indicates how to split the
 parts of a raw string name under the hood. If you want more control, use a custom
 `Parser`.
