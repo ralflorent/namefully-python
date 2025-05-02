@@ -101,6 +101,18 @@ def test_generic_name_to_iterable(generic_name):
         assert isinstance(n, Name)
 
 
+def test_to_iterable_returns_sequence_of_name_parts(generic_name):
+    parts = iter(generic_name)
+    assert next(parts) == Name.prefix('Mr')
+    assert next(parts) == Name.first('John')
+    assert next(parts) == Name.middle('Ben')
+    assert next(parts) == Name.last('Smith')
+    assert next(parts) == Name.suffix('Ph.D')
+
+    with pytest.raises(StopIteration):
+        next(parts)  # no more names available
+
+
 def test_generic_name_case_conversion(generic_name):
     assert generic_name.lower() == 'john ben smith'
     assert generic_name.upper() == 'JOHN BEN SMITH'
@@ -143,6 +155,10 @@ def test_by_first_name_create_full_name(by_first_name):
     assert by_first_name.full_name(ordered_by='last_name') == 'Mr Smith John Ben Ph.D'
     assert by_first_name.birth_name() == 'John Ben Smith'
     assert by_first_name.birth_name(ordered_by='last_name') == 'Smith John Ben'
+
+    assert by_first_name.size == 5
+    assert by_first_name.length == len('John Ben Smith')
+    assert len(by_first_name) == len('Mr John Ben Smith Ph.D')
 
 
 def test_by_first_name_initials(by_first_name):
@@ -195,6 +211,10 @@ def test_by_last_name_create_full_name(by_last_name):
     assert by_last_name.full_name(ordered_by='first_name') == 'Mr John Ben Smith Ph.D'
     assert by_last_name.birth_name() == 'Smith John Ben'
     assert by_last_name.birth_name(ordered_by='first_name') == 'John Ben Smith'
+
+    assert by_last_name.size == 5
+    assert by_last_name.length == len('Smith John Ben')
+    assert len(by_last_name) == len('Mr Smith John Ben Ph.D')
 
 
 def test_by_last_name_initials(by_last_name):

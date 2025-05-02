@@ -82,6 +82,23 @@ class Namefully:
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Namefully) and self.full == other.full
 
+    def __len__(self) -> int:
+        """The length of the full name."""
+        return len(self.full)
+
+    def __iter__(self):
+        self.__index = 0
+        return iter(self._full_name.to_iterable(True))
+
+    def __next__(self) -> Name:
+        names = self._full_name.to_iterable(True)
+        if self.__index >= len(names):
+            self.__index = 0
+            raise StopIteration
+
+        self.__index += 1
+        return names[self.__index]
+
     @staticmethod
     def parse(text: str) -> Optional['Namefully']:
         try:

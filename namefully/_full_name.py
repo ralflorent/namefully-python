@@ -1,4 +1,4 @@
-from typing import Any, List, Mapping, Optional, Sequence, Union
+from typing import Any, Iterator, List, Mapping, Optional, Sequence, Union
 
 from ._config import Config
 from ._errors import NameError
@@ -34,6 +34,19 @@ class FullName:
         self._prefix: Optional[Name] = None
         self._middle_name: List[Name] = []
         self._suffix: Optional[Name] = None
+
+    def __iter__(self) -> Iterator:
+        self.__index = 0
+        return iter(self.to_iterable(True))
+
+    def __next__(self) -> Name:
+        names = self.to_iterable(True)
+        if self.__index >= len(names):
+            self.__index = 0
+            raise StopIteration
+
+        self.__index += 1
+        return names[self.__index]
 
     @property
     def prefix(self) -> Optional[Name]:
@@ -115,15 +128,18 @@ class FullName:
 
     def to_iterable(self, flat: bool = False) -> Sequence[Name]:
         names: List[Name] = []
-        names.extend(self._middle_name)
         if self._prefix:
             names.append(self._prefix)
+
         if flat:
             names.extend(self._first_name.as_names)
+            names.extend(self._middle_name)
             names.extend(self._last_name.as_names)
         else:
             names.append(self._first_name)
+            names.extend(self._middle_name)
             names.append(self._last_name)
+
         if self._suffix:
             names.append(self._suffix)
         return tuple(names)

@@ -88,3 +88,23 @@ def test_has_indicates_whether_full_name_has_specific_namon():
     assert full_name.has('middle_name') is False
     assert full_name.has('last_name') is True
     assert full_name.has('suffix') is False
+
+
+def test_to_iterable_returns_sequence_of_name_parts():
+    full_name = FullName()
+    full_name.prefix = 'Mr'
+    full_name.first_name = 'John'
+    full_name.middle_name = ['Ben', 'Carl']
+    full_name.last_name = 'Smith'
+    full_name.suffix = 'Ph.D'
+
+    parts = iter(full_name)
+    assert next(parts) == Name.prefix('Mr')
+    assert next(parts) == Name.first('John')
+    assert next(parts) == Name.middle('Ben')
+    assert next(parts) == Name.middle('Carl')
+    assert next(parts) == Name.last('Smith')
+    assert next(parts) == Name.suffix('Ph.D')
+
+    with pytest.raises(StopIteration):
+        next(parts)  # no more names available

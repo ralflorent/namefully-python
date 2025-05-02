@@ -55,9 +55,9 @@ or string array values.
 >>> name = Namefully('Smith John Joe', ordered_by='last_name')
 >>> name.last
 'Smith'
->>> name = Namefully(['Edison', 'Thomas'], ordered_by='last_name')
+>>> name = Namefully(['De La Cruz', 'Antonio'], ordered_by='last_name')
 >>> name.first
-'Thomas'
+'Antonio'
 ```
 
 > **Note**: The order of appearance set initially will be prioritized in other
@@ -158,7 +158,7 @@ To sum it all up, the default values are:
 >>> config
 <Config: default>
 >>> config.to_dict()
-{'name': 'default', 'ordered_by': 'first_name', 'separator': ' ', 'title': 'uk', 'ending': False, 'bypass': False, 'surname': 'father'}
+{'name': 'default', 'ordered_by': 'first_name', 'separator': ' ', 'title': 'uk', 'ending': False, 'bypass': True, 'surname': 'father'}
 ```
 
 ## Do It Yourself
