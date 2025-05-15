@@ -170,7 +170,7 @@ from namefully import Namefully, Parser, FullName
 
 class SimpleParser(Parser):
     def parse(self, **options) -> FullName:
-        fn, ln = self.raw.split('#')
+        fn, ln = self.raw.split('#', 1)
         return FullName.parse({'first_name': fn, 'last_name': ln}, **options)
 
 name = Namefully(SimpleParser('Juan#Garcia'))

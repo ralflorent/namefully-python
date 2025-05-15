@@ -1,5 +1,5 @@
 import re
-from typing import List, Mapping, Optional, Sequence, Union
+from typing import Iterator, List, Mapping, Optional, Sequence, Union
 
 from ._config import Config
 from ._constants import ALLOWED_TOKENS
@@ -10,7 +10,7 @@ from ._parser import NamaParser, Parser, SequentialNameParser, SequentialStringP
 from ._utils import decapitalize, toggle_case
 
 
-class Namefully:
+class Namefully(object):
     """
     A utility for organizing person names in a specific order, format, or structure.
 
@@ -86,18 +86,21 @@ class Namefully:
         """The length of the full name."""
         return len(self.full)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         self.__index = 0
-        return iter(self._full_name.to_iterable(True))
+        return iter(self._full_name.to_iterable(flat=True))
 
     def __next__(self) -> Name:
-        names = self._full_name.to_iterable(True)
+        names = self._full_name.to_iterable(flat=True)
         if self.__index >= len(names):
             self.__index = 0
             raise StopIteration
 
         self.__index += 1
         return names[self.__index]
+
+    def __getitem__(self, key) -> Union[None, Name, List[Name]]:
+        return self.get(key)
 
     @staticmethod
     def parse(text: str) -> Optional['Namefully']:
@@ -193,7 +196,7 @@ class Namefully:
         return self.full_name()
 
     @property
-    def parts(self):
+    def parts(self) -> Sequence[Name]:
         return self._full_name.to_iterable()
 
     @property
@@ -457,7 +460,7 @@ class Namefully:
         return sep.join(self.split())
 
     def capitalize(self) -> str:
-        return self.birth.capitalize()
+        return ' '.join(name.capitalize() for name in self.split())
 
     def upper(self) -> str:
         return self.birth.upper()

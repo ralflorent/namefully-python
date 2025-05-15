@@ -28,6 +28,7 @@ def test_generic_name_has(generic_name):
 
 
 def test_generic_name_to_string(generic_name):
+    assert str(generic_name) == 'Mr John Ben Smith Ph.D'
     assert generic_name.to_str() == 'Mr John Ben Smith Ph.D'
 
 
