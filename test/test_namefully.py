@@ -1,6 +1,6 @@
 import pytest
 
-from namefully import FirstName, LastName, Name, NameError, Namefully
+from namefully import FirstName, LastName, Name, NameError, Namefully, NameIndex
 
 from ._helpers import HashParser, find_name_case
 
@@ -273,6 +273,8 @@ def test_can_be_instantiated_with_custom_parser():
 
 
 def test_try_parse():
+    assert Namefully.parse('John') is None
+
     parsed = Namefully.parse('John Smith')
     assert parsed is not None
     assert parsed.short == 'John Smith'
@@ -295,7 +297,13 @@ def test_try_parse():
     assert parsed.middle == 'Some'
     assert ' '.join(parsed.middle_name()) == 'Some Other Name Parts'
 
-    assert Namefully.parse('John') is None
+    parsed = Namefully.parse('John "Nickname" Smith Ph.D', index=NameIndex.only(first_name=0, last_name=2, suffix=3))
+    assert parsed is not None
+    assert parsed.short == 'John Smith'
+    assert parsed.first == 'John'
+    assert parsed.last == 'Smith'
+    assert parsed.suffix == 'Ph.D'
+    assert parsed.middle is None
 
 
 def test_can_be_built_with_name():

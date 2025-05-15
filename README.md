@@ -155,7 +155,7 @@ To sum it all up, the default values are:
 ```python
 >>> from namefully import Config
 >>> config = Config.create()
->>> config
+>>> print(config)
 <Config: default>
 >>> config.to_dict()
 {'name': 'default', 'ordered_by': 'first_name', 'separator': ' ', 'title': 'uk', 'ending': False, 'bypass': True, 'surname': 'father'}
@@ -177,9 +177,19 @@ name = Namefully(SimpleParser('Juan#Garcia'))
 print(name.full)  # Juan Garcia
 ```
 
+Or simply use `NameIndex` to specify where the name parts are located in a text.
+
+```python
+from namefully import Namefully, NameIndex
+
+name = Namefully.parse('Dwayne "The Rock" Johnson', index=NameIndex.only(first_name=0, last_name=3))
+print(name.full) # Dwayne Johnson
+```
+
 ## Concepts and examples
 
-The name standards used for the current version of this library are as follows:
+The name standards (inspired by this [UK name guide][name-standards]) used for
+the current version of this library are as follows:
 
 `[prefix] first_name [middle_name] last_name [suffix]`
 
@@ -217,6 +227,7 @@ So, this utility understands the name parts as follows:
 `namefully` does not support certain use cases:
 
 - mononame: `Plato` - a workaround is to set the mononame as both first and last name;
+- nickname: `Dwayne "The Rock" Johnson` - use custom parser instead.
 - multiple prefixes or suffixes: `Prof. Dr. Einstein`.
 
 ## Contributing
@@ -241,3 +252,4 @@ The underlying content of this utility is licensed under [MIT][license-url].
 [contributing-url]: https://github.com/ralflorent/namefully-python/blob/main/CONTRIBUTING.md
 [examples]: https://github.com/ralflorent/namefully-python/blob/main/examples/main.py
 [test cases]:https://github.com/ralflorent/namefully-python/blob/main/test
+[name-standards]: https://www.fbiic.gov/public/2008/nov/Naming_practice_guide_UK_2006.pdf

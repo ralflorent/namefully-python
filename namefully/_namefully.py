@@ -7,7 +7,7 @@ from ._errors import NameError
 from ._full_name import FullName
 from ._name import FirstName, LastName, Name
 from ._parser import NamaParser, Parser, SequentialNameParser, SequentialStringParser, StringParser
-from ._utils import decapitalize, toggle_case
+from ._utils import NameIndex, decapitalize, toggle_case
 
 
 class Namefully(object):
@@ -35,7 +35,7 @@ class Namefully(object):
     last name.
 
     For more information on name standards, see:
-        https://departments.weber.edu/qsupport&training/Data_Standards/Name.htm
+        https://www.fbiic.gov/public/2008/nov/Naming_practice_guide_UK_2006.pdf
 
     **IMPORTANT**: The order of appearance (or name order) matters and can be altered
     through configuration parameters, which will be discussed later. By default,
@@ -103,9 +103,9 @@ class Namefully(object):
         return self.get(key)
 
     @staticmethod
-    def parse(text: str) -> Optional['Namefully']:
+    def parse(text: str, index: Optional[NameIndex] = None) -> Optional['Namefully']:
         try:
-            return Namefully(Parser.build(text))
+            return Namefully(Parser.build(text, index))
         except Exception:
             return None
 
