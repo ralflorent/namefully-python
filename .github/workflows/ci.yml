@@ -5,6 +5,9 @@ on:
     branches: [dev]
     paths-ignore: ['**.md', 'LICENSE', '.python-version']
 
+permissions:
+  contents: read
+
 jobs:
   unit-test:
     runs-on: ubuntu-latest
@@ -43,7 +46,7 @@ jobs:
 
   ecosystem-test:
     needs: unit-test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.12']
