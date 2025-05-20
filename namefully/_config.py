@@ -28,8 +28,14 @@ class Config:
         self._bypass: bool = bypass
         self._surname: str = surname in _Surname and surname or 'father'
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return f'<Config: {self._name}>'
+
+    def __repr__(self) -> str:
+        return (
+            f'Config(name={self.name}, ordered_by={self.ordered_by}, separator={self.separator}, '
+            f'title={self.title}, ending={self.ending}, bypass={self.bypass}, surname={self.surname})'
+        )
 
     @property
     def ordered_by(self) -> str:

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Mapping, Sequence
+from typing import Any, List, Mapping, Optional, Sequence
 
 from ._config import Config
 from ._errors import InputError
@@ -21,17 +21,22 @@ class Parser(ABC):
         raise NotImplementedError
 
     @staticmethod
-    def build(text: str) -> 'Parser':
+    def build(text: str, index: Optional[NameIndex] = None) -> 'Parser':
         parts = text.strip().split(Separator.space[1])
         length = len(parts)
-        if length == 0 or length == 1:
-            raise InputError(source=text, message='cannot build from invalid input')
-        elif length == 2 or length == 3:
-            return StringParser(text)
+
+        if isinstance(index, NameIndex):
+            names = [Name(parts[v], type=k) for k, v in index.to_dict().items() if v >= 0 and v < length]
+            return SequentialNameParser(names)
         else:
-            last = parts.pop()
-            first, *middles = parts
-            return SequentialStringParser([first, ' '.join(middles), last])
+            if length < 2:
+                raise InputError(source=text, message='2+ name parts need to be provided to proceed')
+            elif length == 2 or length == 3:
+                return StringParser(text)
+            else:
+                last = parts.pop()
+                first, *middles = parts
+                return SequentialStringParser([first, ' '.join(middles), last])
 
 
 class StringParser(Parser):

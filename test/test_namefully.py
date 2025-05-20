@@ -1,6 +1,6 @@
 import pytest
 
-from namefully import FirstName, LastName, Name, NameError, Namefully
+from namefully import FirstName, LastName, Name, NameError, Namefully, NameIndex
 
 from ._helpers import HashParser, find_name_case
 
@@ -28,6 +28,7 @@ def test_generic_name_has(generic_name):
 
 
 def test_generic_name_to_string(generic_name):
+    assert str(generic_name) == 'Mr John Ben Smith Ph.D'
     assert generic_name.to_str() == 'Mr John Ben Smith Ph.D'
 
 
@@ -167,6 +168,7 @@ def test_by_first_name_initials(by_first_name):
     assert by_first_name.initials(only='first_name') == ['J']
     assert by_first_name.initials(only='middle_name') == ['B']
     assert by_first_name.initials(only='last_name') == ['S']
+    assert by_first_name.initials(as_json=True) == {'first_name': ['J'], 'middle_name': ['B'], 'last_name': ['S']}
 
 
 def test_by_first_name_shorten(by_first_name):
@@ -223,6 +225,7 @@ def test_by_last_name_initials(by_last_name):
     assert by_last_name.initials(only='first_name') == ['J']
     assert by_last_name.initials(only='middle_name') == ['B']
     assert by_last_name.initials(only='last_name') == ['S']
+    assert by_last_name.initials(as_json=True) == {'first_name': ['J'], 'middle_name': ['B'], 'last_name': ['S']}
 
 
 def test_by_last_name_shorten(by_last_name):
@@ -272,6 +275,8 @@ def test_can_be_instantiated_with_custom_parser():
 
 
 def test_try_parse():
+    assert Namefully.parse('John') is None
+
     parsed = Namefully.parse('John Smith')
     assert parsed is not None
     assert parsed.short == 'John Smith'
@@ -294,7 +299,13 @@ def test_try_parse():
     assert parsed.middle == 'Some'
     assert ' '.join(parsed.middle_name()) == 'Some Other Name Parts'
 
-    assert Namefully.parse('John') is None
+    parsed = Namefully.parse('John "Nickname" Smith Ph.D', index=NameIndex.only(first_name=0, last_name=2, suffix=3))
+    assert parsed is not None
+    assert parsed.short == 'John Smith'
+    assert parsed.first == 'John'
+    assert parsed.last == 'Smith'
+    assert parsed.suffix == 'Ph.D'
+    assert parsed.middle is None
 
 
 def test_can_be_built_with_name():

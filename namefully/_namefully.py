@@ -1,5 +1,5 @@
 import re
-from typing import List, Mapping, Optional, Sequence, Union
+from typing import Iterator, List, Mapping, Optional, Sequence, Union
 
 from ._config import Config
 from ._constants import ALLOWED_TOKENS
@@ -7,10 +7,10 @@ from ._errors import NameError
 from ._full_name import FullName
 from ._name import FirstName, LastName, Name
 from ._parser import NamaParser, Parser, SequentialNameParser, SequentialStringParser, StringParser
-from ._utils import decapitalize, toggle_case
+from ._utils import NameIndex, decapitalize, toggle_case
 
 
-class Namefully:
+class Namefully(object):
     """
     A utility for organizing person names in a specific order, format, or structure.
 
@@ -35,7 +35,7 @@ class Namefully:
     last name.
 
     For more information on name standards, see:
-        https://departments.weber.edu/qsupport&training/Data_Standards/Name.htm
+        https://www.fbiic.gov/public/2008/nov/Naming_practice_guide_UK_2006.pdf
 
     **IMPORTANT**: The order of appearance (or name order) matters and can be altered
     through configuration parameters, which will be discussed later. By default,
@@ -86,12 +86,12 @@ class Namefully:
         """The length of the full name."""
         return len(self.full)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         self.__index = 0
-        return iter(self._full_name.to_iterable(True))
+        return iter(self._full_name.to_iterable(flat=True))
 
     def __next__(self) -> Name:
-        names = self._full_name.to_iterable(True)
+        names = self._full_name.to_iterable(flat=True)
         if self.__index >= len(names):
             self.__index = 0
             raise StopIteration
@@ -99,10 +99,13 @@ class Namefully:
         self.__index += 1
         return names[self.__index]
 
+    def __getitem__(self, key: str) -> Union[None, Name, List[Name]]:
+        return self.get(key)
+
     @staticmethod
-    def parse(text: str) -> Optional['Namefully']:
+    def parse(text: str, index: Optional[NameIndex] = None) -> Optional['Namefully']:
         try:
-            return Namefully(Parser.build(text))
+            return Namefully(Parser.build(text, index))  # does this need options?
         except Exception:
             return None
 
@@ -193,7 +196,7 @@ class Namefully:
         return self.full_name()
 
     @property
-    def parts(self):
+    def parts(self) -> Sequence[Name]:
         return self._full_name.to_iterable()
 
     @property
@@ -234,7 +237,7 @@ class Namefully:
 
     def full_name(self, ordered_by: Optional[str] = None) -> str:
         sep, names = ',' if self.config.ending else '', []
-        ordered_by = ordered_by or self.config.ordered_by
+        ordered_by = (ordered_by or self.config.ordered_by).lower()
 
         if self.prefix:
             names.append(self.prefix)
@@ -248,7 +251,7 @@ class Namefully:
         return ' '.join(names).strip()
 
     def birth_name(self, ordered_by: Optional[str] = None) -> str:
-        ordered_by = ordered_by or self.config.ordered_by
+        ordered_by = (ordered_by or self.config.ordered_by).lower()
         if ordered_by in ['first', 'first_name', 'firstname']:
             return ' '.join([self.first, *self.middle_name(), self.last])
         else:
@@ -263,15 +266,20 @@ class Namefully:
     def last_name(self, format: Optional[str] = None) -> str:
         return self._full_name.last_name.to_str(format=format)
 
-    def initials(self, ordered_by: Optional[str] = None, only: Optional[str] = None) -> List[str]:
-        initials = []
+    def initials(
+        self, *, ordered_by: Optional[str] = None, only: Optional[str] = None, as_json: bool = False
+    ) -> Union[List[str], Mapping[str, List[str]]]:
         first_inits = self._full_name.first_name.initials()
         mid_inits = [n.initial for n in self._full_name.middle_name]
         last_inits = self._full_name.last_name.initials()
 
-        ordered_by = ordered_by or self.config.ordered_by
+        if as_json:
+            return {'first_name': first_inits, 'middle_name': mid_inits, 'last_name': last_inits}
+
+        ordered_by = (ordered_by or self.config.ordered_by).lower()
         only = only in ['birth_name', 'first_name', 'middle_name', 'last_name'] and only or 'birth_name'
 
+        initials = []
         if only != 'birth_name':
             if only == 'first_name':
                 initials.extend(first_inits)
@@ -287,7 +295,7 @@ class Namefully:
         return initials
 
     def shorten(self, ordered_by: Optional[str] = None) -> str:
-        ordered_by = ordered_by or self.config.ordered_by
+        ordered_by = (ordered_by or self.config.ordered_by).lower()
         if ordered_by in ['first', 'first_name', 'firstname']:
             return ' '.join([self._full_name.first_name.value, self._full_name.last_name.to_str()])
         else:
@@ -457,7 +465,7 @@ class Namefully:
         return sep.join(self.split())
 
     def capitalize(self) -> str:
-        return self.birth.capitalize()
+        return ' '.join(name.capitalize() for name in self.split())
 
     def upper(self) -> str:
         return self.birth.upper()
