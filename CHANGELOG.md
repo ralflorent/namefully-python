@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 See [standard-version](https://github.com/conventional-changelog/standard-version)
 for commit guidelines.
 
+## 1.2.0 (2025-05-20)
+
+- Add name builder capabilities with lifecycle hooks
+- Parse non-standard name cases with indexers
+- Return initials as JSON dictionary if needed
+- Apply minor updates to documentation
+
 ## 1.1.0 (2025-05-01)
 
 - Add magic method iterators to both `FullName` and `Namefully`

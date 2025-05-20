@@ -99,13 +99,13 @@ class Namefully(object):
         self.__index += 1
         return names[self.__index]
 
-    def __getitem__(self, key) -> Union[None, Name, List[Name]]:
+    def __getitem__(self, key: str) -> Union[None, Name, List[Name]]:
         return self.get(key)
 
     @staticmethod
     def parse(text: str, index: Optional[NameIndex] = None) -> Optional['Namefully']:
         try:
-            return Namefully(Parser.build(text, index))
+            return Namefully(Parser.build(text, index))  # does this need options?
         except Exception:
             return None
 
@@ -237,7 +237,7 @@ class Namefully(object):
 
     def full_name(self, ordered_by: Optional[str] = None) -> str:
         sep, names = ',' if self.config.ending else '', []
-        ordered_by = ordered_by or self.config.ordered_by
+        ordered_by = (ordered_by or self.config.ordered_by).lower()
 
         if self.prefix:
             names.append(self.prefix)
@@ -251,7 +251,7 @@ class Namefully(object):
         return ' '.join(names).strip()
 
     def birth_name(self, ordered_by: Optional[str] = None) -> str:
-        ordered_by = ordered_by or self.config.ordered_by
+        ordered_by = (ordered_by or self.config.ordered_by).lower()
         if ordered_by in ['first', 'first_name', 'firstname']:
             return ' '.join([self.first, *self.middle_name(), self.last])
         else:
@@ -266,15 +266,20 @@ class Namefully(object):
     def last_name(self, format: Optional[str] = None) -> str:
         return self._full_name.last_name.to_str(format=format)
 
-    def initials(self, ordered_by: Optional[str] = None, only: Optional[str] = None) -> List[str]:
-        initials = []
+    def initials(
+        self, *, ordered_by: Optional[str] = None, only: Optional[str] = None, as_json: bool = False
+    ) -> Union[List[str], Mapping[str, List[str]]]:
         first_inits = self._full_name.first_name.initials()
         mid_inits = [n.initial for n in self._full_name.middle_name]
         last_inits = self._full_name.last_name.initials()
 
-        ordered_by = ordered_by or self.config.ordered_by
+        if as_json:
+            return {'first_name': first_inits, 'middle_name': mid_inits, 'last_name': last_inits}
+
+        ordered_by = (ordered_by or self.config.ordered_by).lower()
         only = only in ['birth_name', 'first_name', 'middle_name', 'last_name'] and only or 'birth_name'
 
+        initials = []
         if only != 'birth_name':
             if only == 'first_name':
                 initials.extend(first_inits)
@@ -290,7 +295,7 @@ class Namefully(object):
         return initials
 
     def shorten(self, ordered_by: Optional[str] = None) -> str:
-        ordered_by = ordered_by or self.config.ordered_by
+        ordered_by = (ordered_by or self.config.ordered_by).lower()
         if ordered_by in ['first', 'first_name', 'firstname']:
             return ' '.join([self._full_name.first_name.value, self._full_name.last_name.to_str()])
         else:

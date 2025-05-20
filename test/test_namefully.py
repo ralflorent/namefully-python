@@ -168,6 +168,7 @@ def test_by_first_name_initials(by_first_name):
     assert by_first_name.initials(only='first_name') == ['J']
     assert by_first_name.initials(only='middle_name') == ['B']
     assert by_first_name.initials(only='last_name') == ['S']
+    assert by_first_name.initials(as_json=True) == {'first_name': ['J'], 'middle_name': ['B'], 'last_name': ['S']}
 
 
 def test_by_first_name_shorten(by_first_name):
@@ -224,6 +225,7 @@ def test_by_last_name_initials(by_last_name):
     assert by_last_name.initials(only='first_name') == ['J']
     assert by_last_name.initials(only='middle_name') == ['B']
     assert by_last_name.initials(only='last_name') == ['S']
+    assert by_last_name.initials(as_json=True) == {'first_name': ['J'], 'middle_name': ['B'], 'last_name': ['S']}
 
 
 def test_by_last_name_shorten(by_last_name):

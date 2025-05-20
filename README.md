@@ -24,7 +24,7 @@ pip install namefully
 'Thomas Edison'
 >>> name.public
 'Thomas E'
->>> name.initials(with_mid=True)
+>>> name.initials()
 ['T', 'A', 'E']
 >>> name.format('L, f m')
 'EDISON, Thomas Alva'
@@ -33,10 +33,9 @@ pip install namefully
 ```
 
 > **NOTE**: if you intend to use this utility for non-standard name cases such as
-> many middle names or last names, some extra work is required. For example,
-> using `Namefully.parse()` lets you parse names containing many middle names.
+> many middle names or last names, use `Namefully.parse()` or `NameBuilder` instead.
 
-See [examples] or [test cases] for more details.
+See [examples] or [test cases][test-cases] for more details.
 
 ## Additional Settings
 
@@ -166,24 +165,39 @@ To sum it all up, the default values are:
 Customize your own parser to indicate the full name yourself.
 
 ```python
-from namefully import Namefully, Parser, FullName
-
-class SimpleParser(Parser):
-    def parse(self, **options) -> FullName:
-        fn, ln = self.raw.split('#', 1)
-        return FullName.parse({'first_name': fn, 'last_name': ln}, **options)
-
-name = Namefully(SimpleParser('Juan#Garcia'))
-print(name.full)  # Juan Garcia
+>>> from namefully import Namefully, Parser, FullName
+>>>
+>>> class SimpleParser(Parser):
+...     def parse(self, **options) -> FullName:
+...         fn, ln = self.raw.split('#', 1)
+...         return FullName.parse({'first_name': fn, 'last_name': ln}, **options)
+>>>
+>>> name = Namefully(SimpleParser('Juan#Garcia'))
+>>> name.full
+'Juan Garcia'
 ```
 
-Or simply use `NameIndex` to specify where the name parts are located in a text.
+Or use `NameIndex` to specify where the name parts are located in a text.
 
 ```python
-from namefully import Namefully, NameIndex
+>>> from namefully import Namefully, NameIndex
+>>> name = Namefully.parse('Dwayne "The Rock" Johnson', index=NameIndex.only(first_name=0, last_name=3))
+>>> name.full
+'Dwayne Johnson'
+```
 
-name = Namefully.parse('Dwayne "The Rock" Johnson', index=NameIndex.only(first_name=0, last_name=3))
-print(name.full) # Dwayne Johnson
+Or simply use `NameBuilder` to build a name on the fly (with lifecycle hooks if needed).
+
+```python
+>>> from namefully import Name
+>>> from namefully.builder import NameBuilder
+>>>
+>>> builder = NameBuilder.of(Name.first('Nikola')) # can be more than one name
+>>> builder.add(Name.last('Tesla'))
+>>> builder.add(Name.prefix('Mr'))
+>>> name = builder.build(title='us')
+>>> name.full
+'Mr. Nikola Tesla'
 ```
 
 ## Concepts and examples
@@ -203,7 +217,7 @@ other words, the most basic/typical case is a name that looks like this:
 
 ### Basic cases
 
-Let us take a common example:
+Let us take a common example with all the parts:
 
 `Mr John Joe Smith PhD`
 
@@ -237,7 +251,7 @@ the code of conduct, and the process for submitting pull requests.
 
 ## License
 
-The underlying content of this utility is licensed under [MIT][license-url].
+The underlying content of this utility is licensed under [MIT License][license-url].
 
 <!-- References -->
 
@@ -251,5 +265,5 @@ The underlying content of this utility is licensed under [MIT][license-url].
 
 [contributing-url]: https://github.com/ralflorent/namefully-python/blob/main/CONTRIBUTING.md
 [examples]: https://github.com/ralflorent/namefully-python/blob/main/examples/main.py
-[test cases]:https://github.com/ralflorent/namefully-python/blob/main/test
+[test-cases]: https://github.com/ralflorent/namefully-python/blob/main/test
 [name-standards]: https://www.fbiic.gov/public/2008/nov/Naming_practice_guide_UK_2006.pdf
